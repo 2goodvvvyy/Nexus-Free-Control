@@ -1,0 +1,105 @@
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
+
+local NexusControlAltsScreenFree = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Sign = Instance.new("TextLabel")
+local User = Instance.new("TextLabel")
+local Creds = Instance.new("TextLabel")
+local Copy = Instance.new("TextButton")
+
+--Properties:
+
+NexusControlAltsScreenFree.Name = "Nexus Control Alts Screen Free"
+NexusControlAltsScreenFree.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+NexusControlAltsScreenFree.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+NexusControlAltsScreenFree.ResetOnSpawn = false
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = NexusControlAltsScreenFree
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(-0.127379119, 0, -0.127604172, 0)
+MainFrame.Size = UDim2.new(1.17789161, 0, 1.13411462, 0)
+
+Sign.Name = "Sign"
+Sign.Parent = NexusControlAltsScreenFree
+Sign.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Sign.BackgroundTransparency = 1.000
+Sign.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Sign.BorderSizePixel = 0
+Sign.Position = UDim2.new(0.209370449, 0, 0.265625, 0)
+Sign.Size = UDim2.new(0.610541701, 0, 0.0651041642, 0)
+Sign.Font = Enum.Font.SourceSansBold
+Sign.Text = "Nexus Control - Free (Plz buy Paid 🤑)"
+Sign.TextColor3 = Color3.fromRGB(255, 255, 255)
+Sign.TextSize = 50.000
+
+User.Name = "User"
+User.Parent = NexusControlAltsScreenFree
+User.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+User.BackgroundTransparency = 1.000
+User.BorderColor3 = Color3.fromRGB(0, 0, 0)
+User.BorderSizePixel = 0
+User.Position = UDim2.new(0.346998543, 0, 0.4921875, 0)
+User.Size = UDim2.new(0.32064423, 0, 0.0651041642, 0)
+User.Font = Enum.Font.SourceSansBold
+User.Text = "- Username -  User1234567890"
+User.TextColor3 = Color3.fromRGB(255, 255, 255)
+User.TextSize = 45.000
+
+Creds.Name = "Creds"
+Creds.Parent = NexusControlAltsScreenFree
+Creds.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Creds.BackgroundTransparency = 1.000
+Creds.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Creds.BorderSizePixel = 0
+Creds.Position = UDim2.new(0.420937032, 0, 0.802083313, 0)
+Creds.Size = UDim2.new(0.161786243, 0, 0.0651041642, 0)
+Creds.Font = Enum.Font.SourceSansBold
+Creds.Text = "Made by - catwt. / @CatWtf"
+Creds.TextColor3 = Color3.fromRGB(145, 145, 145)
+Creds.TextSize = 22.000
+
+Copy.Name = "Copy"
+Copy.Parent = NexusControlAltsScreenFree
+Copy.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Copy.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Copy.BorderSizePixel = 0
+Copy.Position = UDim2.new(0.319321334, 0, 0.891319454, 0)
+Copy.Size = UDim2.new(0.364260435, 0, 0.0651041642, 0)
+Copy.Font = Enum.Font.SourceSansBold
+Copy.Text = "Click to copy Discord server to clipboard"
+Copy.TextColor3 = Color3.fromRGB(255, 255, 255)
+Copy.TextSize = 18.000
+
+-- Scripts:
+
+local function YUOO_fake_script() -- User.LocalScript 
+	local script = Instance.new('LocalScript', User)
+
+	local Label = script.Parent
+	
+	local Players = game:GetService("Players")
+	local localPlayer = Players.LocalPlayer
+	
+	-- Get the username and display name
+	local username = localPlayer.Name
+	
+	Label.Text = "- Username -  " .. username
+end
+coroutine.wrap(YUOO_fake_script)()
+local function VXCLR_fake_script() -- Copy.LocalScript 
+	local script = Instance.new('LocalScript', Copy)
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		setclipboard("https://discord.gg/ZX7QJyEnuV")
+	end)
+	
+end
+coroutine.wrap(VXCLR_fake_script)()
