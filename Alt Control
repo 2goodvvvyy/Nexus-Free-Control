@@ -19,6 +19,10 @@ local function Drop()
                 game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.E, false, game)
                 ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
                 wait(0.1)
+                local player = game.Players.LocalPlayer
+                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    player.Character.HumanoidRootPart.CFrame = CFrame.new(player.Character.HumanoidRootPart.Position, player.Character.HumanoidRootPart.Position + player.Character.HumanoidRootPart.CFrame.LookVector)
+                end
             end
         end)
     end
