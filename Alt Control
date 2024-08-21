@@ -46,7 +46,12 @@ end
 local function StopDrop()
     if getgenv().isDropping == true then
         getgenv().isDropping = false
-        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, false, game)
+        
+        spawn(function()
+            while getgenv().isDropping == false do
+                game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, false, game)
+            end
+        end)
     end
 end
 
