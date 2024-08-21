@@ -35,39 +35,67 @@ local function PlayerAdded(Player)
     local function Chatted(Message)
         local finalMsg = Message:lower()
 
-        if finalMsg == "/drop on" then
-            Drop()
-        elseif finalMsg == "/drop off" then
-            StopDrop()
-        elseif string.sub(finalMsg, 1, 5) == "/fps " then
-            local fpsValue = tonumber(string.sub(finalMsg, 6))
-            if fpsValue then
-                setfpscap(fpsValue)
-            end
-        elseif finalMsg == "/setup" then
-            local Players = game:GetService("Players")
-            local LocalPlayer = Players.LocalPlayer
-            local controllerUserId = getgenv().controller
-            
-            local function teleportInFrontOfUser(userId, distance)
-                local targetPlayer = Players:GetPlayerByUserId(userId)
-                if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
-
-                    local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
-
-                    LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
-                else
-                    warn("Host not found or not in the game.")
+        if Player.UserId == getgenv().controller then
+            if finalMsg == "/drop on" then
+                Drop()
+                for _, altUserId in pairs(getgenv().Alts) do
+                    if altUserId ~= 0 then
+                        local altPlayer = Players:GetPlayerByUserId(altUserId)
+                        if altPlayer then
+                            altPlayer:Chat("/drop on")
+                        end
+                    end
                 end
-            end
+            elseif finalMsg == "/drop off" then
+                StopDrop()
+                for _, altUserId in pairs(getgenv().Alts) do
+                    if altUserId ~= 0 then
+                        local altPlayer = Players:GetPlayerByUserId(altUserId)
+                        if altPlayer then
+                            altPlayer:Chat("/drop off")
+                        end
+                    end
+                end
+            elseif string.sub(finalMsg, 1, 5) == "/fps " then
+                local fpsValue = tonumber(string.sub(finalMsg, 6))
+                if fpsValue then
+                    setfpscap(fpsValue)
+                    for _, altUserId in pairs(getgenv().Alts) do
+                        if altUserId ~= 0 then
+                            local altPlayer = Players:GetPlayerByUserId(altUserId)
+                            if altPlayer then
+                                altPlayer:Chat("/fps " .. fpsValue)
+                            end
+                        end
+                    end
+                end
+            elseif finalMsg == "/setup" then
+                local Players = game:GetService("Players")
+                local LocalPlayer = Players.LocalPlayer
+                local controllerUserId = getgenv().controller
+                
+                local function teleportInFrontOfUser(userId, distance)
+                    local targetPlayer = Players:GetPlayerByUserId(userId)
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
 
-            if getgenv().Alts.Alt1 or getgenv().Alts.Alt2 or getgenv().Alts.Alt3 or
-               getgenv().Alts.Alt4 or getgenv().Alts.Alt5 or getgenv().Alts.Alt6 or
-               getgenv().Alts.Alt7 or getgenv().Alts.Alt8 or getgenv().Alts.Alt9 or
-               getgenv().Alts.Alt10 or getgenv().Alts.Alt11 or getgenv().Alts.Alt12 or
-               getgenv().Alts.Alt13 or getgenv().Alts.Alt14 or getgenv().Alts.Alt15 then
+                        local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
+
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
+                    else
+                        warn("Host not found or not in the game.")
+                    end
+                end
+
                 teleportInFrontOfUser(controllerUserId, 10)
+                for _, altUserId in pairs(getgenv().Alts) do
+                    if altUserId ~= 0 then
+                        local altPlayer = Players:GetPlayerByUserId(altUserId)
+                        if altPlayer then
+                            teleportInFrontOfUser(altUserId, 10)
+                        end
+                    end
+                end
             end
         end
     end
