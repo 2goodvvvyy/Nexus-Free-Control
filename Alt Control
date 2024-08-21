@@ -1,3 +1,5 @@
+
+
 getgenv().isDropping = false
 
 local vu = game:GetService("VirtualUser")
@@ -14,192 +16,124 @@ local function Drop()
     if not getgenv().isDropping then
         getgenv().isDropping = true
 
-        while getgenv().isDropping do
-            keypress(Enum.KeyCode.F)
-            ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
-            wait(0.1)
-            keyrelease(Enum.KeyCode.F)
-        end
+        spawn(function()
+            while getgenv().isDropping do
+                game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.F, false, game)
+                ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
+                wait(0.1)
+            end
+        end)
     end
 end
 
 local function StopDrop()
     if getgenv().isDropping then
         getgenv().isDropping = false
-        keyrelease(Enum.KeyCode.F)
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, false, game)
     end
 end
 
-local function Setup()
-    local Players = game:GetService("Players")
-    local LocalPlayer = Players.LocalPlayer
-    local controllerUserId = getgenv().controller
+local function PlayerAdded(Player)
+    local function Chatted(Message)
 
-    local function teleportInFrontOfUser(userId, distance)
-        local targetPlayer = Players:GetPlayerByUserId(userId)
-        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
+        if Player.UserId == getgenv().controller then
+            local finalMsg = Message:lower()
+            if finalMsg == "/drop on" then
+                Drop()
 
-            local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
+            elseif finalMsg == "/setup" then
+                local Players = game:GetService("Players")
+                local LocalPlayer = Players.LocalPlayer
+                local controllerUserId = getgenv().controller
+                
+                local function teleportInFrontOfUser(userId, distance)
+                    local targetPlayer = Players:GetPlayerByUserId(userId)
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
 
-            LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
-        else
-            warn("Host not found or not in the game.")
-        end
-    end
+                        local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
 
-    teleportInFrontOfUser(controllerUserId, 10)
-    for _, altUserId in pairs(getgenv().Alts) do
-        if altUserId ~= 0 then
-            local altPlayer = Players:GetPlayerByUserId(altUserId)
-            if altPlayer then
-                teleportInFrontOfUser(altUserId, 10)
-            end
-        end
-    end
-end
-
-local function Chatted(Player, Message)
-    local finalMsg = Message:lower()
-
-    if Player.UserId == getgenv().controller then
-        if finalMsg == "/drop on" then
-            Drop()
-            for _, altUserId in pairs(getgenv().Alts) do
-                if altUserId ~= 0 then
-                    local altPlayer = Players:GetPlayerByUserId(altUserId)
-                    if altPlayer then
-                        altPlayer:Chat("/drop on")
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
+                    else
+                        warn("Host not found or not in the game.")
                     end
                 end
-            end
-        elseif finalMsg == "/drop off" then
-            StopDrop()
-            for _, altUserId in pairs(getgenv().Alts) do
-                if altUserId ~= 0 then
-                    local altPlayer = Players:GetPlayerByUserId(altUserId)
-                    if altPlayer then
-                        altPlayer:Chat("/drop off")
-                    end
+
+                if getgenv().Alts.Alt1 or getgenv().Alts.Alt2 or getgenv().Alts.Alt3 or
+                   getgenv().Alts.Alt4 or getgenv().Alts.Alt5 or getgenv().Alts.Alt6 or
+                   getgenv().Alts.Alt7 or getgenv().Alts.Alt8 or getgenv().Alts.Alt9 or
+                   getgenv().Alts.Alt10 or getgenv().Alts.Alt11 or getgenv().Alts.Alt12 or
+                   getgenv().Alts.Alt13 or getgenv().Alts.Alt14 or getgenv().Alts.Alt15 then
+                    teleportInFrontOfUser(controllerUserId, 10)
+                end
+
+            elseif finalMsg == "/drop off" then
+                StopDrop()
+
+            elseif string.sub(finalMsg, 1, 5) == "/fps " then
+                local fpsValue = tonumber(string.sub(finalMsg, 6))
+                if fpsValue and Player.UserId == getgenv().controller then
+                    setfpscap(fpsValue)
                 end
             end
-        elseif string.sub(finalMsg, 1, 5) == "/fps " then
-            local fpsValue = tonumber(string.sub(finalMsg, 6))
-            if fpsValue then
-                setfpscap(fpsValue)
-                for _, altUserId in pairs(getgenv().Alts) do
-                    if altUserId ~= 0 then
-                        local altPlayer = Players:GetPlayerByUserId(altUserId)
-                        if altPlayer then
-                            altPlayer:Chat("/fps " .. fpsValue)
+
+            if Player.UserId == Alts then
+                Clip = false
+
+                local speaker = game.Players.LocalPlayer
+                wait(0.1)
+                local function NoclipLoop()
+                    if not Clip and speaker.Character then
+                        for _, child in pairs(speaker.Character:GetDescendants()) do
+                            if child:IsA("BasePart") and child.CanCollide then
+                                child.CanCollide = false
+                            end
                         end
                     end
                 end
+                Noclipping = game:GetService('RunService').Stepped:Connect(NoclipLoop)
+                workspace:FindFirstChildOfClass('Terrain').WaterWaveSize = 0
+                workspace:FindFirstChildOfClass('Terrain').WaterWaveSpeed = 0
+                workspace:FindFirstChildOfClass('Terrain').WaterReflectance = 0
+                workspace:FindFirstChildOfClass('Terrain').WaterTransparency = 0
+                game:GetService("Lighting").GlobalShadows = false
+                game:GetService("Lighting").FogEnd = 9e9
+                settings().Rendering.QualityLevel = 1
+
+                for _, v in pairs(game:GetDescendants()) do
+                    if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+                        v.Material = "Plastic"
+                        v.Reflectance = 0
+                    elseif v:IsA("Decal") then
+                        v.Transparency = 1
+                    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                        v.Lifetime = NumberRange.new(0)
+                    elseif v:IsA("Explosion") then
+                        v.BlastPressure = 1
+                        v.BlastRadius = 1
+                    end
+                end
+
+                for _, v in pairs(game:GetService("Lighting"):GetDescendants()) do
+                    if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or
+                        v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
+                        v.Enabled = false
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(child)
+                    coroutine.wrap(function()
+                        if child:IsA('ForceField') or child:IsA('Sparkles') or child:IsA('Smoke') or child:IsA('Fire') then
+                            game:GetService('RunService').Heartbeat:Wait()
+                            child:Destroy()
+                        end
+                    end)()
+                end)
             end
-        elseif finalMsg == "/setup" then
-            Setup()
         end
     end
+
+    Player.Chatted:Connect(Chatted)
 end
 
-Players.PlayerChatted:Connect(Chatted)
-
--- Gui to Lua
--- Version: 3.2
--- Instances:
-local NexusControlAltsScreenFree = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local Sign = Instance.new("TextLabel")
-local User = Instance.new("TextLabel")
-local Creds = Instance.new("TextLabel")
-local Copy = Instance.new("TextButton")
-
---Properties:
-NexusControlAltsScreenFree.Name = "Nexus Control Alts Screen Free"
-NexusControlAltsScreenFree.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-NexusControlAltsScreenFree.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-NexusControlAltsScreenFree.ResetOnSpawn = false
-
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = NexusControlAltsScreenFree
-MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-MainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(-0.127379119, 0, -0.127604172, 0)
-MainFrame.Size = UDim2.new(1.17789161, 0, 1.13411462, 0)
-
-Sign.Name = "Sign"
-Sign.Parent = NexusControlAltsScreenFree
-Sign.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Sign.BackgroundTransparency = 1.000
-Sign.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Sign.BorderSizePixel = 0
-Sign.Position = UDim2.new(0.209370449, 0, 0.265625, 0)
-Sign.Size = UDim2.new(0.610541701, 0, 0.0651041642, 0)
-Sign.Font = Enum.Font.SourceSansBold
-Sign.Text = "Nexus Control - Free (Plz buy Paid 🤑)"
-Sign.TextColor3 = Color3.fromRGB(255, 255, 255)
-Sign.TextSize = 50.000
-
-User.Name = "User"
-User.Parent = NexusControlAltsScreenFree
-User.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-User.BackgroundTransparency = 1.000
-User.BorderColor3 = Color3.fromRGB(0, 0, 0)
-User.BorderSizePixel = 0
-User.Position = UDim2.new(0.346998543, 0, 0.4921875, 0)
-User.Size = UDim2.new(0.32064423, 0, 0.0651041642, 0)
-User.Font = Enum.Font.SourceSansBold
-User.Text = "- Username -  User1234567890"
-User.TextColor3 = Color3.fromRGB(255, 255, 255)
-User.TextSize = 45.000
-
-Creds.Name = "Creds"
-Creds.Parent = NexusControlAltsScreenFree
-Creds.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Creds.BackgroundTransparency = 1.000
-Creds.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Creds.BorderSizePixel = 0
-Creds.Position = UDim2.new(0.420937032, 0, 0.802083313, 0)
-Creds.Size = UDim2.new(0.161786243, 0, 0.0651041642, 0)
-Creds.Font = Enum.Font.SourceSansBold
-Creds.Text = "Made by - catwt. / @CatWtf"
-Creds.TextColor3 = Color3.fromRGB(145, 145, 145)
-Creds.TextSize = 22.000
-
-Copy.Name = "Copy"
-Copy.Parent = NexusControlAltsScreenFree
-Copy.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Copy.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Copy.BorderSizePixel = 0
-Copy.Position = UDim2.new(0.319321334, 0, 0.891319454, 0)
-Copy.Size = UDim2.new(0.364260435, 0, 0.0651041642, 0)
-Copy.Font = Enum.Font.SourceSansBold
-Copy.Text = "Click to copy Discord server to clipboard"
-Copy.TextColor3 = Color3.fromRGB(255, 255, 255)
-Copy.TextSize = 18.000
-
--- Scripts:
-local function YUOO_fake_script() -- User.LocalScript 
-    local script = Instance.new('LocalScript', User)
-    local Label = script.Parent
-
-    local Players = game:GetService("Players")
-    local localPlayer = Players.LocalPlayer
-
-    -- Get the username and display name
-    local username = localPlayer.Name
-
-    Label.Text = "- Username -  " .. username
-end
-coroutine.wrap(YUOO_fake_script)()
-
-local function VXCLR_fake_script() -- Copy.LocalScript 
-    local script = Instance.new('LocalScript', Copy)
-    local button = script.Parent
-
-    button.MouseButton1Click:Connect(function()
-        setclipboard("https://discord.gg/ZX7QJyEnuV")
-    end)
-end
-coroutine.wrap(VXCLR_fake_script)()
+Players.PlayerAdded:Connect(PlayerAdded)
