@@ -48,12 +48,6 @@ local function StopDrop()
     end
 end
 
-local function Fps()
-        fpscap(getgenv().FPS)
-    end
-    
-fps()
-
 local function PlayerAdded(Player)
     local function Chatted(Message)
         if Player.UserId == getgenv().controller then
