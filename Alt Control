@@ -75,9 +75,70 @@ local function PlayerAdded(Player)
                 end
             end
 
-            if Player.UserId == getgenv().Alts then
+            if Player.UserId == Alts then
+                Clip = false
 
+                local speaker = game.Players.LocalPlayer
+                wait(0.1)
+                local function NoclipLoop()
+                    if not Clip and speaker.Character then
+                        for _, child in pairs(speaker.Character:GetDescendants()) do
+                            if child:IsA("BasePart") and child.CanCollide then
+                                child.CanCollide = false
+                            end
+                        end
+                    end
+                end
+                Noclipping = game:GetService('RunService').Stepped:Connect(NoclipLoop)
+                workspace:FindFirstChildOfClass('Terrain').WaterWaveSize = 0
+                workspace:FindFirstChildOfClass('Terrain').WaterWaveSpeed = 0
+                workspace:FindFirstChildOfClass('Terrain').WaterReflectance = 0
+                workspace:FindFirstChildOfClass('Terrain').WaterTransparency = 0
+                game:GetService("Lighting").GlobalShadows = false
+                game:GetService("Lighting").FogEnd = 9e9
+                settings().Rendering.QualityLevel = 1
 
+                for _, v in pairs(game:GetDescendants()) do
+                    if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+                        v.Material = "Plastic"
+                        v.Reflectance = 0
+                    elseif v:IsA("Decal") then
+                        v.Transparency = 1
+                    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                        v.Lifetime = NumberRange.new(0)
+                    elseif v:IsA("Explosion") then
+                        v.BlastPressure = 1
+                        v.BlastRadius = 1
+                    end
+                end
+
+                for _, v in pairs(game:GetService("Lighting"):GetDescendants()) do
+                    if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or
+                        v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
+                        v.Enabled = false
+                    end
+                end
+
+                workspace.DescendantAdded:Connect(function(child)
+                    coroutine.wrap(function()
+                        if child:IsA('ForceField') or child:IsA('Sparkles') or child:IsA('Smoke') or child:IsA('Fire') then
+                            game:GetService('RunService').Heartbeat:Wait()
+                            child:Destroy()
+                        end
+                    end)()
+                end)
+            end
+        end
+    end
+
+    Player.Chatted:Connect(Chatted)
+end
+
+Players.PlayerAdded:Connect(PlayerAdded)
+
+-- Gui to Lua
+-- Version: 3.2
+-- Instances:
 local NexusControlAltsScreenFree = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local Sign = Instance.new("TextLabel")
@@ -86,7 +147,6 @@ local Creds = Instance.new("TextLabel")
 local Copy = Instance.new("TextButton")
 
 --Properties:
-
 NexusControlAltsScreenFree.Name = "Nexus Control Alts Screen Free"
 NexusControlAltsScreenFree.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 NexusControlAltsScreenFree.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -152,90 +212,26 @@ Copy.TextColor3 = Color3.fromRGB(255, 255, 255)
 Copy.TextSize = 18.000
 
 -- Scripts:
-
 local function YUOO_fake_script() -- User.LocalScript 
-	local script = Instance.new('LocalScript', User)
+    local script = Instance.new('LocalScript', User)
+    local Label = script.Parent
 
-	local Label = script.Parent
-	
-	local Players = game:GetService("Players")
-	local localPlayer = Players.LocalPlayer
-	
-	-- Get the username and display name
-	local username = localPlayer.Name
-	
-	Label.Text = "- Username -  " .. username
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+
+    -- Get the username and display name
+    local username = localPlayer.Name
+
+    Label.Text = "- Username -  " .. username
 end
 coroutine.wrap(YUOO_fake_script)()
-local function VXCLR_fake_script() -- Copy.LocalScript 
-	local script = Instance.new('LocalScript', Copy)
 
-	local button = script.Parent
-	
-	button.MouseButton1Click:Connect(function()
-		setclipboard("https://discord.gg/ZX7QJyEnuV")
-	end)
-	
+local function VXCLR_fake_script() -- Copy.LocalScript 
+    local script = Instance.new('LocalScript', Copy)
+    local button = script.Parent
+
+    button.MouseButton1Click:Connect(function()
+        setclipboard("https://discord.gg/ZX7QJyEnuV")
+    end)
 end
 coroutine.wrap(VXCLR_fake_script)()
-
-
-                Clip = false
-
-                local speaker = game.Players.LocalPlayer
-                wait(0.1)
-                local function NoclipLoop()
-                    if not Clip and speaker.Character then
-                        for _, child in pairs(speaker.Character:GetDescendants()) do
-                            if child:IsA("BasePart") and child.CanCollide then
-                                child.CanCollide = false
-                            end
-                        end
-                    end
-                end
-                Noclipping = game:GetService('RunService').Stepped:Connect(NoclipLoop)
-                workspace:FindFirstChildOfClass('Terrain').WaterWaveSize = 0
-                workspace:FindFirstChildOfClass('Terrain').WaterWaveSpeed = 0
-                workspace:FindFirstChildOfClass('Terrain').WaterReflectance = 0
-                workspace:FindFirstChildOfClass('Terrain').WaterTransparency = 0
-                game:GetService("Lighting").GlobalShadows = false
-                game:GetService("Lighting").FogEnd = 9e9
-                settings().Rendering.QualityLevel = 1
-
-                for _, v in pairs(game:GetDescendants()) do
-                    if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-                        v.Material = "Plastic"
-                        v.Reflectance = 0
-                    elseif v:IsA("Decal") then
-                        v.Transparency = 1
-                    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                        v.Lifetime = NumberRange.new(0)
-                    elseif v:IsA("Explosion") then
-                        v.BlastPressure = 1
-                        v.BlastRadius = 1
-                    end
-                end
-
-                for _, v in pairs(game:GetService("Lighting"):GetDescendants()) do
-                    if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or
-                        v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
-                        v.Enabled = false
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(child)
-                    coroutine.wrap(function()
-                        if child:IsA('ForceField') or child:IsA('Sparkles') or child:IsA('Smoke') or child:IsA('Fire') then
-                            game:GetService('RunService').Heartbeat:Wait()
-                            child:Destroy()
-                        end
-                    end)()
-                end)
-            end
-        end
-    end
-
-    Player.Chatted:Connect(Chatted)
-end
-
-Players.PlayerAdded:Connect(PlayerAdded)
