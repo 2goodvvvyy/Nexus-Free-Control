@@ -12,19 +12,17 @@ local ReplicatedStorage = game:GetService('ReplicatedStorage')
 
 local function Drop()
     if getgenv().isDropping == false then
+  
         getgenv().isDropping = true
-        
-        spawn(function()
-            while getgenv().isDropping == true do
-                game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.F, false, game)
-                ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
-                wait(0.1)
-                local player = game.Players.LocalPlayer
-               if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-              player.Character.HumanoidRootPart.CFrame = CFrame.new(player.Character.HumanoidRootPart.Position, player.Character.HumanoidRootPart.Position + player.Character.HumanoidRootPart.CFrame.LookVector)
-                end
-            end
-        end)
+
+        if getgenv().isDropping == true then
+            game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.F, false, game)
+            game.ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
+        end
+        while getgenv().isDropping == true do
+            game.ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
+            wait(1)
+        end
     end
 end
 
@@ -44,14 +42,9 @@ local function teleportAltsToHost()
 end
 
 local function StopDrop()
-    if getgenv().isDropping == true then
-        getgenv().isDropping = false
-        
-        spawn(function()
-            while getgenv().isDropping == false do
-                game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, false, game)
-            end
-        end)
+    getgenv().isDropping = false
+    if getgenv().isDropping == false then
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, true, game)
     end
 end
 
