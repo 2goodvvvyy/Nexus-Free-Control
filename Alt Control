@@ -14,96 +14,95 @@ local function Drop()
     if not getgenv().isDropping then
         getgenv().isDropping = true
 
-        spawn(function()
-            while getgenv().isDropping do
-                game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.F, false, game)
-                ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
-                wait(0.1)
-            end
-        end)
+        while getgenv().isDropping do
+            keypress(Enum.KeyCode.F)
+            ReplicatedStorage.MainEvent:FireServer("DropMoney", 10000)
+            wait(0.1)
+            keyrelease(Enum.KeyCode.F)
+        end
     end
 end
 
 local function StopDrop()
     if getgenv().isDropping then
         getgenv().isDropping = false
-        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, false, game)
+        keyrelease(Enum.KeyCode.F)
     end
 end
 
-local function PlayerAdded(Player)
-    local function Chatted(Message)
-        local finalMsg = Message:lower()
+local function Setup()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local controllerUserId = getgenv().controller
 
-        if Player.UserId == getgenv().controller then
-            if finalMsg == "/drop on" then
-                Drop()
+    local function teleportInFrontOfUser(userId, distance)
+        local targetPlayer = Players:GetPlayerByUserId(userId)
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
+
+            local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
+
+            LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
+        else
+            warn("Host not found or not in the game.")
+        end
+    end
+
+    teleportInFrontOfUser(controllerUserId, 10)
+    for _, altUserId in pairs(getgenv().Alts) do
+        if altUserId ~= 0 then
+            local altPlayer = Players:GetPlayerByUserId(altUserId)
+            if altPlayer then
+                teleportInFrontOfUser(altUserId, 10)
+            end
+        end
+    end
+end
+
+local function Chatted(Player, Message)
+    local finalMsg = Message:lower()
+
+    if Player.UserId == getgenv().controller then
+        if finalMsg == "/drop on" then
+            Drop()
+            for _, altUserId in pairs(getgenv().Alts) do
+                if altUserId ~= 0 then
+                    local altPlayer = Players:GetPlayerByUserId(altUserId)
+                    if altPlayer then
+                        altPlayer:Chat("/drop on")
+                    end
+                end
+            end
+        elseif finalMsg == "/drop off" then
+            StopDrop()
+            for _, altUserId in pairs(getgenv().Alts) do
+                if altUserId ~= 0 then
+                    local altPlayer = Players:GetPlayerByUserId(altUserId)
+                    if altPlayer then
+                        altPlayer:Chat("/drop off")
+                    end
+                end
+            end
+        elseif string.sub(finalMsg, 1, 5) == "/fps " then
+            local fpsValue = tonumber(string.sub(finalMsg, 6))
+            if fpsValue then
+                setfpscap(fpsValue)
                 for _, altUserId in pairs(getgenv().Alts) do
                     if altUserId ~= 0 then
                         local altPlayer = Players:GetPlayerByUserId(altUserId)
                         if altPlayer then
-                            altPlayer:Chat("/drop on")
-                        end
-                    end
-                end
-            elseif finalMsg == "/drop off" then
-                StopDrop()
-                for _, altUserId in pairs(getgenv().Alts) do
-                    if altUserId ~= 0 then
-                        local altPlayer = Players:GetPlayerByUserId(altUserId)
-                        if altPlayer then
-                            altPlayer:Chat("/drop off")
-                        end
-                    end
-                end
-            elseif string.sub(finalMsg, 1, 5) == "/fps " then
-                local fpsValue = tonumber(string.sub(finalMsg, 6))
-                if fpsValue then
-                    setfpscap(fpsValue)
-                    for _, altUserId in pairs(getgenv().Alts) do
-                        if altUserId ~= 0 then
-                            local altPlayer = Players:GetPlayerByUserId(altUserId)
-                            if altPlayer then
-                                altPlayer:Chat("/fps " .. fpsValue)
-                            end
-                        end
-                    end
-                end
-            elseif finalMsg == "/setup" then
-                local Players = game:GetService("Players")
-                local LocalPlayer = Players.LocalPlayer
-                local controllerUserId = getgenv().controller
-                
-                local function teleportInFrontOfUser(userId, distance)
-                    local targetPlayer = Players:GetPlayerByUserId(userId)
-                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
-
-                        local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
-
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
-                    else
-                        warn("Host not found or not in the game.")
-                    end
-                end
-
-                teleportInFrontOfUser(controllerUserId, 10)
-                for _, altUserId in pairs(getgenv().Alts) do
-                    if altUserId ~= 0 then
-                        local altPlayer = Players:GetPlayerByUserId(altUserId)
-                        if altPlayer then
-                            teleportInFrontOfUser(altUserId, 10)
+                            altPlayer:Chat("/fps " .. fpsValue)
                         end
                     end
                 end
             end
+        elseif finalMsg == "/setup" then
+            Setup()
         end
     end
-
-    Player.Chatted:Connect(Chatted)
 end
 
-Players.PlayerAdded:Connect(PlayerAdded)
+Players.PlayerChatted:Connect(Chatted)
 
 -- Gui to Lua
 -- Version: 3.2
