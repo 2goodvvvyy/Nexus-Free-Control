@@ -33,100 +33,41 @@ end
 
 local function PlayerAdded(Player)
     local function Chatted(Message)
+        local finalMsg = Message:lower()
 
-        if Player.UserId == getgenv().controller then
-            local finalMsg = Message:lower()
-            if finalMsg == "/drop on" then
-                Drop()
+        if finalMsg == "/drop on" then
+            Drop()
+        elseif finalMsg == "/drop off" then
+            StopDrop()
+        elseif string.sub(finalMsg, 1, 5) == "/fps " then
+            local fpsValue = tonumber(string.sub(finalMsg, 6))
+            if fpsValue then
+                setfpscap(fpsValue)
+            end
+        elseif finalMsg == "/setup" then
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+            local controllerUserId = getgenv().controller
+            
+            local function teleportInFrontOfUser(userId, distance)
+                local targetPlayer = Players:GetPlayerByUserId(userId)
+                if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
 
-            elseif finalMsg == "/setup" then
-                local Players = game:GetService("Players")
-                local LocalPlayer = Players.LocalPlayer
-                local controllerUserId = getgenv().controller
-                
-                local function teleportInFrontOfUser(userId, distance)
-                    local targetPlayer = Players:GetPlayerByUserId(userId)
-                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local humanoidRootPart = targetPlayer.Character.HumanoidRootPart
+                    local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
 
-                        local frontPosition = humanoidRootPart.CFrame * CFrame.new(0, 0, -distance)
-
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
-                    else
-                        warn("Host not found or not in the game.")
-                    end
-                end
-
-                if getgenv().Alts.Alt1 or getgenv().Alts.Alt2 or getgenv().Alts.Alt3 or
-                   getgenv().Alts.Alt4 or getgenv().Alts.Alt5 or getgenv().Alts.Alt6 or
-                   getgenv().Alts.Alt7 or getgenv().Alts.Alt8 or getgenv().Alts.Alt9 or
-                   getgenv().Alts.Alt10 or getgenv().Alts.Alt11 or getgenv().Alts.Alt12 or
-                   getgenv().Alts.Alt13 or getgenv().Alts.Alt14 or getgenv().Alts.Alt15 then
-                    teleportInFrontOfUser(controllerUserId, 10)
-                end
-
-            elseif finalMsg == "/drop off" then
-                StopDrop()
-
-            elseif string.sub(finalMsg, 1, 5) == "/fps " then
-                local fpsValue = tonumber(string.sub(finalMsg, 6))
-                if fpsValue and Player.UserId == getgenv().controller then
-                    setfpscap(fpsValue)
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = frontPosition
+                else
+                    warn("Host not found or not in the game.")
                 end
             end
 
-            if Player.UserId == Alts then
-                Clip = false
-
-                local speaker = game.Players.LocalPlayer
-                wait(0.1)
-                local function NoclipLoop()
-                    if not Clip and speaker.Character then
-                        for _, child in pairs(speaker.Character:GetDescendants()) do
-                            if child:IsA("BasePart") and child.CanCollide then
-                                child.CanCollide = false
-                            end
-                        end
-                    end
-                end
-                Noclipping = game:GetService('RunService').Stepped:Connect(NoclipLoop)
-                workspace:FindFirstChildOfClass('Terrain').WaterWaveSize = 0
-                workspace:FindFirstChildOfClass('Terrain').WaterWaveSpeed = 0
-                workspace:FindFirstChildOfClass('Terrain').WaterReflectance = 0
-                workspace:FindFirstChildOfClass('Terrain').WaterTransparency = 0
-                game:GetService("Lighting").GlobalShadows = false
-                game:GetService("Lighting").FogEnd = 9e9
-                settings().Rendering.QualityLevel = 1
-
-                for _, v in pairs(game:GetDescendants()) do
-                    if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
-                        v.Material = "Plastic"
-                        v.Reflectance = 0
-                    elseif v:IsA("Decal") then
-                        v.Transparency = 1
-                    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                        v.Lifetime = NumberRange.new(0)
-                    elseif v:IsA("Explosion") then
-                        v.BlastPressure = 1
-                        v.BlastRadius = 1
-                    end
-                end
-
-                for _, v in pairs(game:GetService("Lighting"):GetDescendants()) do
-                    if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or
-                        v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
-                        v.Enabled = false
-                    end
-                end
-
-                workspace.DescendantAdded:Connect(function(child)
-                    coroutine.wrap(function()
-                        if child:IsA('ForceField') or child:IsA('Sparkles') or child:IsA('Smoke') or child:IsA('Fire') then
-                            game:GetService('RunService').Heartbeat:Wait()
-                            child:Destroy()
-                        end
-                    end)()
-                end)
+            if getgenv().Alts.Alt1 or getgenv().Alts.Alt2 or getgenv().Alts.Alt3 or
+               getgenv().Alts.Alt4 or getgenv().Alts.Alt5 or getgenv().Alts.Alt6 or
+               getgenv().Alts.Alt7 or getgenv().Alts.Alt8 or getgenv().Alts.Alt9 or
+               getgenv().Alts.Alt10 or getgenv().Alts.Alt11 or getgenv().Alts.Alt12 or
+               getgenv().Alts.Alt13 or getgenv().Alts.Alt14 or getgenv().Alts.Alt15 then
+                teleportInFrontOfUser(controllerUserId, 10)
             end
         end
     end
