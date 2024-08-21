@@ -1,4 +1,3 @@
-
 getgenv().isDropping = false
 
 local vu = game:GetService("VirtualUser")
@@ -50,12 +49,10 @@ local function StopDrop()
 end
 
 local function Fps()
-    if Player.UserId == getgenv().Alts then
         fpscap(getgenv().FPS)
     end
-end
-
-Fps()
+    
+fps()
 
 local function PlayerAdded(Player)
     local function Chatted(Message)
