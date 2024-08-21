@@ -1,3 +1,4 @@
+
 getgenv().isDropping = false
 
 local vu = game:GetService("VirtualUser")
@@ -44,9 +45,17 @@ end
 local function StopDrop()
     getgenv().isDropping = false
     if getgenv().isDropping == false then
-        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, true, game)
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.F, false, game)
     end
 end
+
+local function Fps()
+    if Player.UserId == getgenv().Alts then
+        fpscap(getgenv().FPS)
+    end
+end
+
+Fps()
 
 local function PlayerAdded(Player)
     local function Chatted(Message)
